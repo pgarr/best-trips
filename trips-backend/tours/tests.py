@@ -33,8 +33,8 @@ class TestTourRoutes:
         assert len(response.json()) == 2
 
     def test_route_get_one(self, client, two_tours):
-        id = two_tours[0].id
-        response = client.get(reverse('tour-detail', args=[id]), follow=True)
+        id_ = two_tours[0].id
+        response = client.get(reverse('tour-detail', args=[id_]), follow=True)
 
         assert response.status_code == 200
         assert response.json()['destination'] == "Poznań"
