@@ -1,14 +1,13 @@
-from django.test import TestCase
-from django.test import Client
-
-from .models import Tour
+import pytest
+from django.urls import reverse
 
 
-# TODO: pytest
-class TourTestCase(TestCase):
+@pytest.mark.django_db
+class TestTourRoutes:
 
-    def setUp(self):
-        Tour.objects.create(destination="Poznań",
+    @pytest.fixture
+    def two_tours(self, create_tour):
+        tour1 = create_tour(destination="Poznań",
                             country="Poland",
                             max_participants=1,
                             short_description="Wycieczka objazdowa",
@@ -16,7 +15,8 @@ class TourTestCase(TestCase):
                             price=500.00,
                             start_date="2021-03-28T11:00:00Z",
                             end_date="2021-03-28T19:00:00Z")
-        Tour.objects.create(destination="Płock",
+
+        tour2 = create_tour(destination="Płock",
                             country="Poland",
                             max_participants=15,
                             short_description="Zwiedzianie",
@@ -24,18 +24,17 @@ class TourTestCase(TestCase):
                             price=500.00,
                             start_date="2021-02-28T11:00:00Z",
                             end_date="2021-02-28T15:00:00Z")
+        return [tour1, tour2]
 
-    def test_route_get_all(self):
-        c = Client()
-        response = c.get('/api/v1/tours/tours', follow=True)
+    def test_route_get_all(self, client, two_tours):
+        response = client.get(reverse('tour-list'), follow=True)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()), 2)
+        assert response.status_code == 200
+        assert len(response.json()) == 2
 
-    def test_route_get_one(self):
-        c = Client()
-        response = c.get('/api/v1/tours/tours/3', follow=True)
+    def test_route_get_one(self, client, two_tours):
+        id = two_tours[0].id
+        response = client.get(reverse('tour-detail', args=[id]), follow=True)
 
-        self.assertEqual(response.status_code, 200)
-
-        self.assertEqual(response.json()['destination'], "Poznań")
+        assert response.status_code == 200
+        assert response.json()['destination'] == "Poznań"
