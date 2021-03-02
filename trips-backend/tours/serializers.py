@@ -7,4 +7,4 @@ class TourSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Tour
         fields = ['url', 'destination', 'country', 'max_participants', 'short_description',
-                  'long_description', 'price', 'start_date', 'end_date']
+                  'long_description', 'departure_country', 'departure_city', 'duration_days']
