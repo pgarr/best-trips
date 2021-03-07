@@ -18,6 +18,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
+    'auth_api.apps.AuthApiConfig',
     'tours.apps.ToursConfig',
     'rest_framework',
     'django.contrib.admin',
@@ -58,8 +59,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'besttrips.wsgi.application'
 
-# Database
-# TODO: load sqllite if not configured in env???
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -112,5 +111,8 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ]
 }

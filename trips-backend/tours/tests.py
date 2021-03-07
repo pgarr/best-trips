@@ -38,18 +38,18 @@ class TestTourRoutes:
         response = client.get(reverse('tour-list'), follow=True)
 
         assert response.status_code == 200
-        assert not any("base_price" in tour for tour in response.json())
+        assert not any('base_price' in tour for tour in response.json())
 
     def test_route_get_one(self, client, two_tours):
         id_ = two_tours[0].id
         response = client.get(reverse('tour-detail', args=[id_]), follow=True)
 
         assert response.status_code == 200
-        assert response.json()['destination'] == "Poznań"
+        assert response.json()['destination'] == 'Poznań'
 
     def test_route_get_one_not_return_base_price(self, client, two_tours):
         id_ = two_tours[0].id
         response = client.get(reverse('tour-detail', args=[id_]), follow=True)
 
         assert response.status_code == 200
-        assert not "base_price" in response.json()
+        assert not 'base_price' in response.json()
