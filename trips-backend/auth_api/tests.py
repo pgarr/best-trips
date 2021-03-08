@@ -88,6 +88,7 @@ class TestAuthApiRoutes:
         assert response.status_code == 400
         assert 'username' in response.json()
 
+    @pytest.mark.xfail
     def test_register_failure_occupied_email(self, client, sample_user):
         user, credentials = sample_user
 
