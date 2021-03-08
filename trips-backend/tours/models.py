@@ -1,3 +1,6 @@
+from functools import reduce
+
+from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -15,19 +18,34 @@ class Tour(models.Model):
     departure_city = models.CharField(max_length=200)
     duration_days = models.IntegerField(validators=[MinValueValidator(1)])
 
-    def get_destination(self):
+    def get_destination_string(self):
         return '%s, %s' % (self.country, self.destination)
 
     def __str__(self):
-        return '%s - %s' % (self.get_destination(), self.short_description)
+        return '%s - %s' % (self.get_destination_string(), self.short_description)
 
 
 class TourInstance(models.Model):
-    tour = models.ForeignKey(Tour, on_delete=models.CASCADE)
+    tour = models.ForeignKey(Tour, on_delete=models.PROTECT)
     departure_time = models.DateTimeField()
     return_time = models.DateTimeField()
     additional_info = models.TextField(blank=True)
     price = models.DecimalField(max_digits=9, decimal_places=2)
 
+    @property
+    def free_places(self):
+        all_reservations = self.reservation_set.all()
+        taken_places = reduce(lambda taken, reservation: taken + reservation.num_people, all_reservations, 0)
+        return self.tour.max_participants - taken_places
+
     def __str__(self):
-        return '%s: from %s to %s' % (self.tour.get_destination(), self.departure_time, self.return_time)
+        return '%s: from %s to %s' % (self.tour.get_destination_string(), self.departure_time, self.return_time)
+
+
+class Reservation(models.Model):
+    # TODO: unique contraint user + tour_instance - only one reservation per one user for one tour
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    tour_instance = models.ForeignKey(TourInstance, on_delete=models.PROTECT)
+    num_people = models.IntegerField(validators=[MinValueValidator(1)])
+    confirmed = models.BooleanField(default=False)
+    paid = models.BooleanField(default=False)
