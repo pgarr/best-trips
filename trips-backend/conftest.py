@@ -2,6 +2,20 @@ import pytest
 
 from tours.models import Tour, TourInstance, Reservation
 from django.contrib.auth.models import User
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+@pytest.fixture
+def create_token():
+    def get_tokens_for_user(user):
+        refresh = RefreshToken.for_user(user)
+
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
+
+    return get_tokens_for_user
 
 
 @pytest.fixture

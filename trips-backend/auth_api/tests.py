@@ -2,16 +2,6 @@ import jwt
 import pytest
 from django.contrib.auth.models import User
 from django.urls import reverse
-from rest_framework_simplejwt.tokens import RefreshToken
-
-
-def get_tokens_for_user(user):
-    refresh = RefreshToken.for_user(user)
-
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
 
 
 @pytest.mark.django_db
@@ -45,10 +35,10 @@ class TestAuthApiRoutes:
         assert 'access' not in response.json()
         assert 'refresh' not in response.json()
 
-    def test_refresh_token_success(self, client, sample_user):
+    def test_refresh_token_success(self, client, sample_user, create_token):
         user, credentials = sample_user
 
-        refresh = get_tokens_for_user(user)['refresh']
+        refresh = create_token(user)['refresh']
 
         response = client.post(reverse('token_refresh'),
                                {'refresh': refresh})

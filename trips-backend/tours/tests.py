@@ -3,6 +3,8 @@ import datetime
 import pytest
 from django.urls import reverse
 
+from tours.models import Reservation
+
 
 @pytest.fixture
 def two_tours(create_tour):
@@ -26,6 +28,17 @@ def two_tours(create_tour):
                         departure_city="Poznań",
                         duration_days="1")
     return [tour1, tour2]
+
+
+@pytest.fixture
+def two_users(create_user):
+    user1 = create_user(username='test1',
+                        email='test1@test.pl',
+                        password='test456&')
+    user2 = create_user(username='test2',
+                        email='test2@test.pl',
+                        password='test456&')
+    return [user1, user2]
 
 
 @pytest.mark.django_db
@@ -71,16 +84,11 @@ class TestTourInstanceModel:
     def test_free_places_no_reservations(self, one_tour_instance):
         assert one_tour_instance.free_places == one_tour_instance.tour.max_participants
 
-    def test_free_places_with_reservations(self, create_user, one_tour_instance, create_reservation):
+    def test_free_places_with_reservations(self, two_users, one_tour_instance, create_reservation):
+        user1, user2 = two_users
+
         number_people_1 = 2
         number_people_2 = 3
-
-        user1 = create_user(username='test1',
-                            email='test1@test.pl',
-                            password='test456&')
-        user2 = create_user(username='test2',
-                            email='test2@test.pl',
-                            password='test456&')
 
         create_reservation(user=user1,
                            tour_instance=one_tour_instance,
@@ -95,4 +103,118 @@ class TestTourInstanceModel:
                            paid=True)
 
         assert one_tour_instance.free_places == one_tour_instance.tour.max_participants - (
-                    number_people_1 + number_people_2)
+                number_people_1 + number_people_2)
+
+
+@pytest.mark.django_db
+class TestReservationRoutes:
+
+    @pytest.fixture
+    def three_instances(self, two_tours, two_users, create_tour_instance, create_reservation):
+        tour1, tour2 = two_tours
+        user1, user2 = two_users
+
+        full_booked_inst = create_tour_instance(tour=tour1,
+                                                departure_time=datetime.datetime(2020, 5, 17),
+                                                return_time=datetime.datetime(2020, 5, 19),
+                                                price=200)
+        create_reservation(user=user1,
+                           tour_instance=full_booked_inst,
+                           num_people=full_booked_inst.tour.max_participants,
+                           confirmed=True,
+                           paid=True)
+
+        three_places_inst = create_tour_instance(tour=tour2,
+                                                 departure_time=datetime.datetime(2020, 5, 17),
+                                                 return_time=datetime.datetime(2020, 5, 19),
+                                                 price=200)
+        create_reservation(user=user1,
+                           tour_instance=three_places_inst,
+                           num_people=three_places_inst.tour.max_participants - 3,
+                           confirmed=True,
+                           paid=True)
+
+        full_places_inst = create_tour_instance(tour=tour2,
+                                                departure_time=datetime.datetime(2020, 5, 17),
+                                                return_time=datetime.datetime(2020, 5, 19),
+                                                price=200)
+
+        return full_booked_inst, three_places_inst, full_places_inst
+
+    def test_create_reservation_fail_without_token(self, client, three_instances):
+        full_booked_inst, three_places_inst, full_places_inst = three_instances
+
+        reservation_data = {'tour_instance': full_places_inst.id,
+                            'num_people': 2,
+                            }
+
+        response = client.post(reverse('reservation-list'), reservation_data)
+
+        print(response.json())
+        assert response.status_code == 401
+
+    def test_create_reservation_fail_without_data(self, client, two_users, three_instances, create_token):
+        user1, user2 = two_users
+
+        access = create_token(user2)['access']
+
+        response = client.post(reverse('reservation-list'), {}, HTTP_Authorization='Bearer %s' % access)
+
+        assert response.status_code == 400
+
+    def test_create_reservation_success_properly_set_data(self, client, two_users, three_instances, create_token):
+        full_booked_inst, three_places_inst, full_places_inst = three_instances
+        user1, user2 = two_users
+
+        access = create_token(user2)['access']
+        reservation_data = {'tour_instance': full_places_inst.id,
+                            'num_people': 2,
+                            }
+
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_Authorization='Bearer %s' % access)
+        assert response.status_code == 201
+
+        new_reservation = Reservation.objects.get(tour_instance=full_places_inst)
+        assert new_reservation.user == user2
+        assert not new_reservation.confirmed
+        assert not new_reservation.paid
+
+    def test_create_reservation_success_dont_override_user(self, client, two_users, three_instances, create_token):
+        full_booked_inst, three_places_inst, full_places_inst = three_instances
+        user1, user2 = two_users
+
+        access = create_token(user2)['access']
+        reservation_data = {'tour_instance': full_places_inst.id,
+                            'num_people': 2,
+                            'user': user1.id
+                            }
+
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_Authorization='Bearer %s' % access)
+        assert response.status_code == 201
+
+        new_reservation = Reservation.objects.get(tour_instance=full_places_inst)
+        assert new_reservation.user == user2
+
+    def test_create_reservation_success_dont_override_confirmed_and_paid(self, client, two_users, three_instances,
+                                                                         create_token):
+        full_booked_inst, three_places_inst, full_places_inst = three_instances
+        user1, user2 = two_users
+
+        access = create_token(user2)['access']
+        reservation_data = {'tour_instance': full_places_inst.id,
+                            'num_people': 2,
+                            'confirmed': True,
+                            'paid': True
+                            }
+
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_Authorization='Bearer %s' % access)
+        assert response.status_code == 201
+
+        new_reservation = Reservation.objects.get(tour_instance=full_places_inst)
+        assert not new_reservation.confirmed
+        assert not new_reservation.paid
+
+        # TODO: create when no free places
+        # TODO: create when more people than free places
+        # TODO: create for user, who reserved this tour instance already
+       
