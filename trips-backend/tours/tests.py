@@ -214,7 +214,42 @@ class TestReservationRoutes:
         assert not new_reservation.confirmed
         assert not new_reservation.paid
 
-        # TODO: create when no free places
-        # TODO: create when more people than free places
-        # TODO: create for user, who reserved this tour instance already
-       
+    def test_create_reservation_fail_no_free_places(self, client, two_users, three_instances, create_token):
+        full_booked_inst, three_places_inst, full_places_inst = three_instances
+        user1, user2 = two_users
+
+        access = create_token(user2)['access']
+        reservation_data = {'tour_instance': full_booked_inst.id,
+                            'num_people': 2,
+                            }
+
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_Authorization='Bearer %s' % access)
+        assert response.status_code == 422
+        assert 'num_people' in response.json()['error']
+
+    def test_create_reservation_fail_too_few_free_places(self, client, two_users, three_instances, create_token):
+        full_booked_inst, three_places_inst, full_places_inst = three_instances
+        user1, user2 = two_users
+
+        access = create_token(user2)['access']
+        reservation_data = {'tour_instance': three_places_inst.id,
+                            'num_people': 4,
+                            }
+
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_Authorization='Bearer %s' % access)
+        assert response.status_code == 422
+        assert 'num_people' in response.json()['error']
+
+    def test_create_reservation_fail_user_has_reservation_already(self, client, two_users, three_instances,
+                                                                  create_token):
+        full_booked_inst, three_places_inst, full_places_inst = three_instances
+        user1, user2 = two_users
+
+        access = create_token(user1)['access']
+        reservation_data = {'tour_instance': three_places_inst.id,
+                            'num_people': 2,
+                            }
+
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_Authorization='Bearer %s' % access)
+        assert response.status_code == 422
+        assert 'user' in response.json()['error']
