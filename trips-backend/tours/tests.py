@@ -150,7 +150,6 @@ class TestReservationRoutes:
 
         response = client.post(reverse('reservation-list'), reservation_data)
 
-        print(response.json())
         assert response.status_code == 401
 
     def test_create_reservation_fail_without_data(self, client, two_users, three_instances, create_token):
@@ -253,3 +252,40 @@ class TestReservationRoutes:
         response = client.post(reverse('reservation-list'), reservation_data, HTTP_Authorization='Bearer %s' % access)
         assert response.status_code == 422
         assert 'user' in response.json()['error']
+
+    def test_get_reservation_list_fail_without_token(self, client, three_instances):
+        response = client.get(reverse('reservation-list'))
+
+        assert response.status_code == 401
+
+    def test_get_reservation_list_success_two_reservations_user(self, client, two_users, three_instances, create_token):
+        user1, user2 = two_users
+        access = create_token(user1)['access']
+
+        response = client.get(reverse('reservation-list'), HTTP_Authorization='Bearer %s' % access)
+
+        assert response.status_code == 200
+        assert len(response.json()) == 2
+
+    def test_get_reservation_list_success_all_have_required_fields(self, client, two_users, three_instances,
+                                                                   create_token):
+        user1, user2 = two_users
+        access = create_token(user1)['access']
+
+        response = client.get(reverse('reservation-list'), HTTP_Authorization='Bearer %s' % access)
+
+        assert response.status_code == 200
+        assert all('departure_time' in instance for instance in response.json())
+        assert all('return_time' in instance for instance in response.json())
+        assert all('tour_destination' in instance for instance in response.json())
+        assert all('confirmed' in instance for instance in response.json())
+        assert all('paid' in instance for instance in response.json())
+
+    def test_get_reservation_list_success_no_reservations_user(self, client, two_users, three_instances, create_token):
+        user1, user2 = two_users
+        access = create_token(user2)['access']
+
+        response = client.get(reverse('reservation-list'), HTTP_Authorization='Bearer %s' % access)
+
+        assert response.status_code == 200
+        assert len(response.json()) == 0
