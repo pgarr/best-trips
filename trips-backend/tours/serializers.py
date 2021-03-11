@@ -13,3 +13,4 @@ class TourSerializer(serializers.HyperlinkedModelSerializer):
 class ReservationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Reservation
+        fields = ['url', 'num_people', 'confirmed', 'paid']
