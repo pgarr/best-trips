@@ -44,7 +44,7 @@ class TourInstance(models.Model):
 
 class Reservation(models.Model):
     # TODO: unique contraint user + tour_instance - only one reservation per one user for one tour
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    owner = models.ForeignKey(User, on_delete=models.PROTECT)
     tour_instance = models.ForeignKey(TourInstance, on_delete=models.PROTECT)
     num_people = models.IntegerField(validators=[MinValueValidator(1)])
     confirmed = models.BooleanField(default=False)

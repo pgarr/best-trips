@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 from django.urls import reverse
+from rest_framework_simplejwt.tokens import AccessToken
 
 from tours.models import Reservation
 
@@ -90,13 +91,13 @@ class TestTourInstanceModel:
         number_people_1 = 2
         number_people_2 = 3
 
-        create_reservation(user=user1,
+        create_reservation(owner=user1,
                            tour_instance=one_tour_instance,
                            num_people=number_people_1,
                            confirmed=True,
                            paid=True)
 
-        create_reservation(user=user2,
+        create_reservation(owner=user2,
                            tour_instance=one_tour_instance,
                            num_people=number_people_2,
                            confirmed=True,
@@ -118,7 +119,7 @@ class TestReservationRoutes:
                                                 departure_time=datetime.datetime(2020, 5, 17),
                                                 return_time=datetime.datetime(2020, 5, 19),
                                                 price=200)
-        create_reservation(user=user1,
+        create_reservation(owner=user1,
                            tour_instance=full_booked_inst,
                            num_people=full_booked_inst.tour.max_participants,
                            confirmed=True,
@@ -128,7 +129,7 @@ class TestReservationRoutes:
                                                  departure_time=datetime.datetime(2020, 5, 17),
                                                  return_time=datetime.datetime(2020, 5, 19),
                                                  price=200)
-        create_reservation(user=user1,
+        create_reservation(owner=user1,
                            tour_instance=three_places_inst,
                            num_people=three_places_inst.tour.max_participants - 3,
                            confirmed=True,
@@ -143,8 +144,7 @@ class TestReservationRoutes:
 
     def test_create_reservation_fail_without_token(self, client, three_instances):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
-
-        reservation_data = {'tour_instance': full_places_inst.id,
+        reservation_data = {'tour_instance_id': full_places_inst.id,
                             'num_people': 2,
                             }
 
@@ -152,63 +152,91 @@ class TestReservationRoutes:
 
         assert response.status_code == 401
 
-    def test_create_reservation_fail_without_data(self, client, two_users, three_instances, create_token):
+    def test_create_reservation_fail_people_less_then_one(self, client, two_users, three_instances, create_token):
+        full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
-
         access = create_token(user2)['access']
 
-        response = client.post(reverse('reservation-list'), {}, HTTP_Authorization='Bearer %s' % access)
+        reservation_data = {'tour_instance_id': full_places_inst.id,
+                            'num_people': 0,
+                            }
+
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
+
+        assert response.status_code == 400
+
+    def test_create_reservation_fail_without_data(self, client, two_users, three_instances, create_token):
+        user1, user2 = two_users
+        access = create_token(user2)['access']
+
+        response = client.post(reverse('reservation-list'), {}, HTTP_AUTHORIZATION='Bearer %s' % access)
+
+        assert response.status_code == 400
+
+    def test_create_reservation_fail_without_num_people(self, client, two_users, three_instances, create_token):
+        full_booked_inst, three_places_inst, full_places_inst = three_instances
+        user1, user2 = two_users
+        access = create_token(user2)['access']
+        reservation_data = {'tour_instance_id': full_places_inst.id,
+                            }
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
+
+        assert response.status_code == 400
+
+    def test_create_reservation_fail_without_tour_instance(self, client, two_users, three_instances, create_token):
+        user1, user2 = two_users
+        access = create_token(user2)['access']
+        reservation_data = {'num_people': 2,
+                            }
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 400
 
     def test_create_reservation_success_properly_set_data(self, client, two_users, three_instances, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
-
         access = create_token(user2)['access']
-        reservation_data = {'tour_instance': full_places_inst.id,
+        reservation_data = {'tour_instance_id': full_places_inst.id,
                             'num_people': 2,
                             }
 
-        response = client.post(reverse('reservation-list'), reservation_data, HTTP_Authorization='Bearer %s' % access)
-        assert response.status_code == 201
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
 
+        assert response.status_code == 201
         new_reservation = Reservation.objects.get(tour_instance=full_places_inst)
-        assert new_reservation.user == user2
+        assert new_reservation.owner == user2
         assert not new_reservation.confirmed
         assert not new_reservation.paid
 
-    def test_create_reservation_success_dont_override_user(self, client, two_users, three_instances, create_token):
+    def test_create_reservation_success_dont_override_owner(self, client, two_users, three_instances, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
-
         access = create_token(user2)['access']
-        reservation_data = {'tour_instance': full_places_inst.id,
+        reservation_data = {'tour_instance_id': full_places_inst.id,
                             'num_people': 2,
-                            'user': user1.id
+                            'owner': user1.id
                             }
 
-        response = client.post(reverse('reservation-list'), reservation_data, HTTP_Authorization='Bearer %s' % access)
-        assert response.status_code == 201
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
 
+        assert response.status_code == 201
         new_reservation = Reservation.objects.get(tour_instance=full_places_inst)
-        assert new_reservation.user == user2
+        assert new_reservation.owner == user2
 
     def test_create_reservation_success_dont_override_confirmed_and_paid(self, client, two_users, three_instances,
                                                                          create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
-
         access = create_token(user2)['access']
-        reservation_data = {'tour_instance': full_places_inst.id,
+        reservation_data = {'tour_instance_id': full_places_inst.id,
                             'num_people': 2,
                             'confirmed': True,
                             'paid': True
                             }
 
-        response = client.post(reverse('reservation-list'), reservation_data, HTTP_Authorization='Bearer %s' % access)
-        assert response.status_code == 201
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
 
+        assert response.status_code == 201
         new_reservation = Reservation.objects.get(tour_instance=full_places_inst)
         assert not new_reservation.confirmed
         assert not new_reservation.paid
@@ -216,26 +244,26 @@ class TestReservationRoutes:
     def test_create_reservation_fail_no_free_places(self, client, two_users, three_instances, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
-
         access = create_token(user2)['access']
-        reservation_data = {'tour_instance': full_booked_inst.id,
+        reservation_data = {'tour_instance_id': full_booked_inst.id,
                             'num_people': 2,
                             }
 
-        response = client.post(reverse('reservation-list'), reservation_data, HTTP_Authorization='Bearer %s' % access)
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
+
         assert response.status_code == 422
         assert 'num_people' in response.json()['error']
 
     def test_create_reservation_fail_too_few_free_places(self, client, two_users, three_instances, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
-
         access = create_token(user2)['access']
-        reservation_data = {'tour_instance': three_places_inst.id,
+        reservation_data = {'tour_instance_id': three_places_inst.id,
                             'num_people': 4,
                             }
 
-        response = client.post(reverse('reservation-list'), reservation_data, HTTP_Authorization='Bearer %s' % access)
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
+
         assert response.status_code == 422
         assert 'num_people' in response.json()['error']
 
@@ -243,15 +271,15 @@ class TestReservationRoutes:
                                                                   create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
-
         access = create_token(user1)['access']
-        reservation_data = {'tour_instance': three_places_inst.id,
+        reservation_data = {'tour_instance_id': three_places_inst.id,
                             'num_people': 2,
                             }
 
-        response = client.post(reverse('reservation-list'), reservation_data, HTTP_Authorization='Bearer %s' % access)
+        response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
+
         assert response.status_code == 422
-        assert 'user' in response.json()['error']
+        assert 'owner' in response.json()['error']
 
     def test_get_reservation_list_fail_without_token(self, client, three_instances):
         response = client.get(reverse('reservation-list'))
@@ -262,7 +290,7 @@ class TestReservationRoutes:
         user1, user2 = two_users
         access = create_token(user1)['access']
 
-        response = client.get(reverse('reservation-list'), HTTP_Authorization='Bearer %s' % access)
+        response = client.get(reverse('reservation-list'), HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 200
         assert len(response.json()) == 2
@@ -272,7 +300,7 @@ class TestReservationRoutes:
         user1, user2 = two_users
         access = create_token(user1)['access']
 
-        response = client.get(reverse('reservation-list'), HTTP_Authorization='Bearer %s' % access)
+        response = client.get(reverse('reservation-list'), HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 200
         assert all('departure_time' in instance for instance in response.json())
@@ -285,7 +313,7 @@ class TestReservationRoutes:
         user1, user2 = two_users
         access = create_token(user2)['access']
 
-        response = client.get(reverse('reservation-list'), HTTP_Authorization='Bearer %s' % access)
+        response = client.get(reverse('reservation-list'), HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 200
         assert len(response.json()) == 0
@@ -294,7 +322,7 @@ class TestReservationRoutes:
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -308,7 +336,7 @@ class TestReservationRoutes:
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -316,7 +344,7 @@ class TestReservationRoutes:
 
         access = create_token(user1)['access']
         response = client.delete(reverse('reservation-detail', args=[reservation.id]),
-                                 HTTP_Authorization='Bearer %s' % access)
+                                 HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 401
 
@@ -325,7 +353,7 @@ class TestReservationRoutes:
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -333,7 +361,7 @@ class TestReservationRoutes:
 
         access = create_token(user2)['access']
         response = client.delete(reverse('reservation-detail', args=[reservation.id]),
-                                 HTTP_Authorization='Bearer %s' % access)
+                                 HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 200
 
@@ -341,7 +369,7 @@ class TestReservationRoutes:
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -355,7 +383,7 @@ class TestReservationRoutes:
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -363,7 +391,7 @@ class TestReservationRoutes:
 
         access = create_token(user1)['access']
         response = client.get(reverse('reservation-detail', args=[reservation.id]),
-                              HTTP_Authorization='Bearer %s' % access)
+                              HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 401
 
@@ -372,7 +400,7 @@ class TestReservationRoutes:
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -380,7 +408,7 @@ class TestReservationRoutes:
 
         access = create_token(user2)['access']
         response = client.get(reverse('reservation-detail', args=[reservation.id]),
-                              HTTP_Authorization='Bearer %s' % access)
+                              HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 200
 
@@ -389,7 +417,7 @@ class TestReservationRoutes:
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -397,19 +425,19 @@ class TestReservationRoutes:
 
         access = create_token(user2)['access']
         response = client.get(reverse('reservation-detail', args=[reservation.id]),
-                              HTTP_Authorization='Bearer %s' % access)
+                              HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 200
         assert 'num_people' in response.json()
         assert 'confirmed' in response.json()
         assert 'paid' in response.json()
-        assert 'tour_instance' in response.json()
+        assert 'tour_instance_id' in response.json()
 
     def test_update_reservation_fail_without_token(self, client, two_users, three_instances, create_reservation):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -427,7 +455,7 @@ class TestReservationRoutes:
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -439,7 +467,7 @@ class TestReservationRoutes:
 
         access = create_token(user1)['access']
         response = client.put(reverse('reservation-detail', args=[reservation.id]), update_data,
-                              HTTP_Authorization='Bearer %s' % access)
+                              HTTP_AUTHORIZATION='Bearer %s' % access)
         assert response.status_code == 401
 
     def test_update_reservation_fail_no_data(self, client, two_users, three_instances, create_reservation,
@@ -447,7 +475,7 @@ class TestReservationRoutes:
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -455,7 +483,7 @@ class TestReservationRoutes:
 
         access = create_token(user2)['access']
         response = client.put(reverse('reservation-detail', args=[reservation.id]),
-                              HTTP_Authorization='Bearer %s' % access)
+                              HTTP_AUTHORIZATION='Bearer %s' % access)
         assert response.status_code == 400
 
     def test_update_reservation_fail_not_enough_free_places(self, client, two_users, three_instances,
@@ -464,7 +492,7 @@ class TestReservationRoutes:
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -476,7 +504,7 @@ class TestReservationRoutes:
 
         access = create_token(user2)['access']
         response = client.put(reverse('reservation-detail', args=[reservation.id]), update_data,
-                              HTTP_Authorization='Bearer %s' % access)
+                              HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 400
         assert not reservation.num_people == update_data['num_people']
@@ -486,7 +514,7 @@ class TestReservationRoutes:
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -498,17 +526,17 @@ class TestReservationRoutes:
 
         access = create_token(user2)['access']
         response = client.put(reverse('reservation-detail', args=[reservation.id]), update_data,
-                              HTTP_Authorization='Bearer %s' % access)
+                              HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 200
         assert reservation.num_people == update_data['num_people']
 
-    def test_update_reservation_success_dont_override_user(self, client, two_users, three_instances,
-                                                           create_reservation, create_token):
+    def test_update_reservation_success_dont_override_owner(self, client, two_users, three_instances,
+                                                            create_reservation, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -516,22 +544,22 @@ class TestReservationRoutes:
 
         update_data = {
             'num_people': 15,
-            'user': user1.id
+            'owner': user1.id
         }
 
         access = create_token(user2)['access']
         response = client.put(reverse('reservation-detail', args=[reservation.id]), update_data,
-                              HTTP_Authorization='Bearer %s' % access)
+                              HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 200
-        assert reservation.user == user2
+        assert reservation.owner == user2
 
     def test_update_reservation_success_dont_override_tour_instance(self, client, two_users, three_instances,
                                                                     create_reservation, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
-        reservation = create_reservation(user=user2,
+        reservation = create_reservation(owner=user2,
                                          tour_instance=full_places_inst,
                                          num_people=1,
                                          confirmed=False,
@@ -539,12 +567,12 @@ class TestReservationRoutes:
 
         update_data = {
             'num_people': 1,
-            'tour_instance': three_places_inst.id,
+            'tour_instance_id': three_places_inst.id,
         }
 
         access = create_token(user2)['access']
         response = client.put(reverse('reservation-detail', args=[reservation.id]), update_data,
-                              HTTP_Authorization='Bearer %s' % access)
+                              HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 200
         assert reservation.tour_instance == full_places_inst
