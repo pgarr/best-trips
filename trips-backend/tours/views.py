@@ -1,7 +1,10 @@
-from rest_framework import permissions, viewsets
+from copy import deepcopy
 
-from .serializers import TourSerializer, ReservationSerializer
+from rest_framework import permissions, status, viewsets
+from rest_framework.response import Response
+
 from .models import Tour, Reservation, TourInstance
+from .serializers import TourSerializer, ReservationSerializer
 
 
 class TourViewSet(viewsets.ReadOnlyModelViewSet):
@@ -20,6 +23,11 @@ class ReservationViewSet(viewsets.ModelViewSet):
             permission_classes = [permissions.IsAdminUser]
         return [permission() for permission in permission_classes]
 
-    def perform_create(self, serializer):
-        tour_inst = TourInstance.objects.get(id=serializer.validated_data['tour_instance_id'])
-        serializer.save(owner=self.request.user, tour_instance=tour_inst)
+    def create(self, request, *args, **kwargs):
+        data = {**request.data.dict(),
+                'owner': request.user.pk}
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

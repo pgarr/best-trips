@@ -1,6 +1,8 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
-from .models import Tour, Reservation
+from .models import Tour, Reservation, TourInstance
 
 
 class TourSerializer(serializers.HyperlinkedModelSerializer):
@@ -11,12 +13,17 @@ class TourSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ReservationSerializer(serializers.HyperlinkedModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
-    tour_instance = serializers.ReadOnlyField(source='tour_instance.__str()__')
-    tour_instance_id = serializers.IntegerField(write_only=True)
+    owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    tour_instance = serializers.PrimaryKeyRelatedField(queryset=TourInstance.objects.all())
     confirmed = serializers.ReadOnlyField()
     paid = serializers.ReadOnlyField()
 
     class Meta:
         model = Reservation
-        fields = ['url', 'id', 'num_people', 'confirmed', 'paid', 'owner', 'tour_instance', 'tour_instance_id']
+        fields = ['url', 'id', 'num_people', 'confirmed', 'paid', 'owner', 'tour_instance']
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Reservation.objects.all(),
+                fields=['owner', 'tour_instance']
+            )
+        ]
