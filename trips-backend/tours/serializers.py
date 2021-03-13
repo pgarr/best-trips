@@ -27,3 +27,13 @@ class ReservationSerializer(serializers.HyperlinkedModelSerializer):
                 fields=['owner', 'tour_instance']
             )
         ]
+
+    def validate(self, attrs):
+        errors = dict()
+        if attrs['num_people'] > attrs['tour_instance'].free_places:
+            errors['num_people'] = 'Not enough free places'
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        return super(ReservationSerializer, self).validate(attrs)

@@ -2,7 +2,6 @@ import datetime
 
 import pytest
 from django.urls import reverse
-from rest_framework_simplejwt.tokens import AccessToken
 
 from tours.models import Reservation
 
@@ -164,6 +163,7 @@ class TestReservationRoutes:
         response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 400
+        assert 'num_people' in response.json()
 
     def test_create_reservation_fail_without_data(self, client, two_users, three_instances, create_token):
         user1, user2 = two_users
@@ -172,6 +172,8 @@ class TestReservationRoutes:
         response = client.post(reverse('reservation-list'), {}, HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 400
+        assert 'num_people' in response.json()
+        assert 'tour_instance' in response.json()
 
     def test_create_reservation_fail_without_num_people(self, client, two_users, three_instances, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
@@ -182,6 +184,7 @@ class TestReservationRoutes:
         response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 400
+        assert 'num_people' in response.json()
 
     def test_create_reservation_fail_without_tour_instance(self, client, two_users, three_instances, create_token):
         user1, user2 = two_users
@@ -191,6 +194,7 @@ class TestReservationRoutes:
         response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 400
+        assert 'tour_instance' in response.json()
 
     def test_create_reservation_success_properly_set_data(self, client, two_users, three_instances, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
@@ -251,8 +255,8 @@ class TestReservationRoutes:
 
         response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
 
-        assert response.status_code == 422
-        assert 'num_people' in response.json()['error']
+        assert response.status_code == 400
+        assert 'num_people' in response.json()
 
     def test_create_reservation_fail_too_few_free_places(self, client, two_users, three_instances, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
@@ -264,8 +268,8 @@ class TestReservationRoutes:
 
         response = client.post(reverse('reservation-list'), reservation_data, HTTP_AUTHORIZATION='Bearer %s' % access)
 
-        assert response.status_code == 422
-        assert 'num_people' in response.json()['error']
+        assert response.status_code == 400
+        assert 'num_people' in response.json()
 
     def test_create_reservation_fail_user_has_reservation_already(self, client, two_users, three_instances,
                                                                   create_token):

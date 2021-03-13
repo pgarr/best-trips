@@ -1,9 +1,7 @@
-from copy import deepcopy
-
 from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
 
-from .models import Tour, Reservation, TourInstance
+from .models import Tour, Reservation
 from .serializers import TourSerializer, ReservationSerializer
 
 
