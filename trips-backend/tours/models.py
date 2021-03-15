@@ -18,11 +18,8 @@ class Tour(models.Model):
     departure_city = models.CharField(max_length=200)
     duration_days = models.IntegerField(validators=[MinValueValidator(1)])
 
-    def get_destination_string(self):
-        return '%s, %s' % (self.country, self.destination)
-
     def __str__(self):
-        return '%s - %s' % (self.get_destination_string(), self.short_description)
+        return '%s, %s' % (self.country, self.destination)
 
 
 class TourInstance(models.Model):
@@ -39,12 +36,13 @@ class TourInstance(models.Model):
         return self.tour.max_participants - taken_places
 
     def __str__(self):
-        return '%s: from %s to %s' % (self.tour.get_destination_string(), self.departure_time, self.return_time)
+        return '%s: from %s to %s' % (self.tour, self.departure_time, self.return_time)
 
 
 class Reservation(models.Model):
     class Meta:
         unique_together = ['owner', 'tour_instance']
+
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
     tour_instance = models.ForeignKey(TourInstance, on_delete=models.PROTECT)
     num_people = models.IntegerField(validators=[MinValueValidator(1)])

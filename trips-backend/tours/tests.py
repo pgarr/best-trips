@@ -305,13 +305,13 @@ class TestReservationRoutes:
 
         response = client.get(reverse('reservation-list'), HTTP_AUTHORIZATION='Bearer %s' % access)
 
-        print(response.json())
         assert response.status_code == 200
         assert all('departure_time' in instance for instance in response.json())
         assert all('return_time' in instance for instance in response.json())
-        assert all('tour_destination' in instance for instance in response.json())
+        assert all('tour_instance' in instance for instance in response.json())
         assert all('confirmed' in instance for instance in response.json())
         assert all('paid' in instance for instance in response.json())
+        assert all('owner' in instance for instance in response.json())
 
     def test_get_reservation_list_success_no_reservations_user(self, client, two_users, three_instances, create_token):
         user1, user2 = two_users
@@ -433,8 +433,27 @@ class TestReservationRoutes:
         assert 'confirmed' in response.json()
         assert 'paid' in response.json()
         assert 'tour_instance' in response.json()
+        tour_instance = response.json()['tour_instance']
 
-    def test_update_reservation_fail_without_token(self, client, two_users, three_instances, create_reservation):
+        assert 'departure_time' in tour_instance
+        assert 'return_time' in tour_instance
+        assert 'additional_info' in tour_instance
+        assert 'price' in tour_instance
+        assert 'tour' in tour_instance
+        tour = tour_instance['tour']
+
+        assert 'destination' in tour
+        assert 'country' in tour
+        assert 'max_participants' in tour
+        assert 'short_description' in tour
+        assert 'long_description' in tour
+        assert 'base_price' not in tour
+        assert 'departure_country' in tour
+        assert 'departure_city' in tour
+
+    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
+    def test_update_reservation_fail_without_token(self, client, two_users, three_instances,
+                                                   create_reservation):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
         reservation = create_reservation(owner=user2,
@@ -449,8 +468,9 @@ class TestReservationRoutes:
         response = client.put(reverse('reservation-detail', args=[reservation.id]), update_data)
         assert response.status_code == 401
 
-    def test_update_reservation_fail_with_wrong_token(self, client, two_users, three_instances, create_reservation,
-                                                      create_token):
+    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
+    def test_update_reservation_fail_with_wrong_token(self, client, two_users, three_instances,
+                                                      create_reservation, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
         reservation = create_reservation(owner=user2,
@@ -466,8 +486,9 @@ class TestReservationRoutes:
         response = client.put(reverse('reservation-detail', args=[reservation.id]), update_data,
                               HTTP_AUTHORIZATION='Bearer %s' % access)
 
-        assert response.status_code == 401
+        assert response.status_code == 403
 
+    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
     def test_update_reservation_fail_no_data(self, client, two_users, three_instances, create_reservation,
                                              create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
@@ -485,9 +506,9 @@ class TestReservationRoutes:
 
         assert response.status_code == 400
 
+    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
     def test_update_reservation_fail_not_enough_free_places(self, client, two_users, three_instances,
-                                                            create_reservation,
-                                                            create_token):
+                                                            create_reservation, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
 
@@ -502,13 +523,14 @@ class TestReservationRoutes:
         access = create_token(user2)['access']
 
         response = client.put(reverse('reservation-detail', args=[reservation.id]), update_data,
-                              HTTP_AUTHORIZATION='Bearer %s' % access)
+                              'application/json', HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 400
         assert not reservation.num_people == update_data['num_people']
 
-    def test_update_reservation_success_override_people_number(self, client, two_users, three_instances,
-                                                               create_reservation, create_token):
+    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
+    def test_update_reservation_success_enough_free_places(self, client, two_users, three_instances,
+                                                           create_reservation, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
         user1, user2 = two_users
         reservation = create_reservation(owner=user2,
@@ -522,11 +544,13 @@ class TestReservationRoutes:
         access = create_token(user2)['access']
 
         response = client.put(reverse('reservation-detail', args=[reservation.id]), update_data,
-                              HTTP_AUTHORIZATION='Bearer %s' % access)
+                              'application/json', HTTP_AUTHORIZATION='Bearer %s' % access)
 
+        reservation.refresh_from_db()
         assert response.status_code == 200
         assert reservation.num_people == update_data['num_people']
 
+    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
     def test_update_reservation_success_dont_override_owner(self, client, two_users, three_instances,
                                                             create_reservation, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
@@ -543,11 +567,12 @@ class TestReservationRoutes:
         access = create_token(user2)['access']
 
         response = client.put(reverse('reservation-detail', args=[reservation.id]), update_data,
-                              HTTP_AUTHORIZATION='Bearer %s' % access)
+                              'application/json', HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 200
         assert reservation.owner == user2
 
+    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
     def test_update_reservation_success_dont_override_tour_instance(self, client, two_users, three_instances,
                                                                     create_reservation, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
@@ -558,13 +583,13 @@ class TestReservationRoutes:
                                          confirmed=False,
                                          paid=False)
         update_data = {
-            'num_people': 1,
-            'tour_instance': three_places_inst.id,
+            "num_people": 1,
+            "tour_instance": three_places_inst.id,
         }
         access = create_token(user2)['access']
 
         response = client.put(reverse('reservation-detail', args=[reservation.id]), update_data,
-                              HTTP_AUTHORIZATION='Bearer %s' % access)
+                              'application/json', HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 200
         assert reservation.tour_instance == full_places_inst
