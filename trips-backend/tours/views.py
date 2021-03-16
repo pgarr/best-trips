@@ -50,8 +50,12 @@ class ReservationViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         self.serializer_class = ReservationCreateSerializer
         instance = self.get_object()
-        data = {'num_people': request.data.get('num_people', instance.num_people)}
-        serializer = self.get_serializer(instance, data=data, partial=True)
+        data = {
+            'num_people': request.data.get('num_people'),
+            'owner': instance.owner.pk,
+            'tour_instance': instance.tour_instance.pk
+        }
+        serializer = self.get_serializer(instance, data=data, partial=False)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 

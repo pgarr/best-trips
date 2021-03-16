@@ -451,7 +451,6 @@ class TestReservationRoutes:
         assert 'departure_country' in tour
         assert 'departure_city' in tour
 
-    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
     def test_update_reservation_fail_without_token(self, client, two_users, three_instances,
                                                    create_reservation):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
@@ -468,7 +467,6 @@ class TestReservationRoutes:
         response = client.put(reverse('reservation-detail', args=[reservation.id]), update_data)
         assert response.status_code == 401
 
-    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
     def test_update_reservation_fail_with_wrong_token(self, client, two_users, three_instances,
                                                       create_reservation, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
@@ -488,7 +486,6 @@ class TestReservationRoutes:
 
         assert response.status_code == 403
 
-    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
     def test_update_reservation_fail_no_data(self, client, two_users, three_instances, create_reservation,
                                              create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
@@ -506,7 +503,6 @@ class TestReservationRoutes:
 
         assert response.status_code == 400
 
-    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
     def test_update_reservation_fail_not_enough_free_places(self, client, two_users, three_instances,
                                                             create_reservation, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
@@ -528,7 +524,6 @@ class TestReservationRoutes:
         assert response.status_code == 400
         assert not reservation.num_people == update_data['num_people']
 
-    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
     def test_update_reservation_success_enough_free_places(self, client, two_users, three_instances,
                                                            create_reservation, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
@@ -550,7 +545,6 @@ class TestReservationRoutes:
         assert response.status_code == 200
         assert reservation.num_people == update_data['num_people']
 
-    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
     def test_update_reservation_success_dont_override_owner(self, client, two_users, three_instances,
                                                             create_reservation, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
@@ -572,7 +566,6 @@ class TestReservationRoutes:
         assert response.status_code == 200
         assert reservation.owner == user2
 
-    # @pytest.mark.parametrize('method', ['PUT', 'PATCH'])
     def test_update_reservation_success_dont_override_tour_instance(self, client, two_users, three_instances,
                                                                     create_reservation, create_token):
         full_booked_inst, three_places_inst, full_places_inst = three_instances
