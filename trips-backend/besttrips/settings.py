@@ -14,7 +14,7 @@ load_dotenv()
 SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 # Application definition
 INSTALLED_APPS = [
@@ -61,12 +61,12 @@ WSGI_APPLICATION = 'besttrips.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
+        'ENGINE': os.environ.get("DB_ENGINE", "django.db.backends.sqlite3"),
+        'NAME': os.environ.get('DB_NAME', os.path.join(BASE_DIR, "db.sqlite3")),
+        'USER': os.environ.get('DB_USER', "user"),
+        'PASSWORD': os.environ.get('DB_PASSWORD', "password"),
+        'HOST': os.environ.get('DB_HOST', "localhost"),
+        'PORT': os.environ.get('DB_PORT', "5432"),
     }
 }
 
@@ -104,7 +104,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/staticfiles/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
