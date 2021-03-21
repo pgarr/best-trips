@@ -17,6 +17,7 @@ class Tour(models.Model):
     departure_country = models.CharField(max_length=200)
     departure_city = models.CharField(max_length=200)
     duration_days = models.IntegerField(validators=[MinValueValidator(1)])
+    main_image = models.ImageField(upload_to='tours_main', blank=True)
 
     def __str__(self):
         return '%s, %s' % (self.country, self.destination)
