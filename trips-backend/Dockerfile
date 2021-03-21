@@ -5,6 +5,7 @@ RUN addgroup -S besttrips && adduser -S besttrips -G besttrips
 ENV APP_HOME=/home/app/web
 RUN mkdir -p $APP_HOME
 RUN mkdir $APP_HOME/staticfiles
+RUN mkdir $APP_HOME/mediafiles
 WORKDIR $APP_HOME
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -12,7 +13,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 RUN pip install --upgrade pip
 COPY requirements.txt requirements.txt
 RUN apk update && \
-    apk add postgresql-libs && \
+    apk add postgresql-libs jpeg-dev zlib-dev libjpeg && \
     apk add --virtual .build-deps gcc musl-dev postgresql-dev && \
     python3 -m pip install -r requirements.txt --no-cache-dir && \
     apk --purge del .build-deps
