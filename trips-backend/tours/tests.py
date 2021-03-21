@@ -44,26 +44,26 @@ def two_users(create_user):
 @pytest.mark.django_db
 class TestTourRoutes:
 
-    def test_route_get_all(self, client, two_tours):
+    def test_get_all(self, client, two_tours):
         response = client.get(reverse('tour-list'), follow=True)
 
         assert response.status_code == 200
         assert len(response.json()) == 2
 
-    def test_route_get_all_not_return_base_price(self, client, two_tours):
+    def test_get_all_not_return_base_price(self, client, two_tours):
         response = client.get(reverse('tour-list'), follow=True)
 
         assert response.status_code == 200
         assert not any('base_price' in tour for tour in response.json())
 
-    def test_route_get_one(self, client, two_tours):
+    def test_get_one(self, client, two_tours):
         id_ = two_tours[0].id
         response = client.get(reverse('tour-detail', args=[id_]), follow=True)
 
         assert response.status_code == 200
         assert response.json()['destination'] == 'Poznań'
 
-    def test_route_get_one_not_return_base_price(self, client, two_tours):
+    def test_get_one_not_return_base_price(self, client, two_tours):
         id_ = two_tours[0].id
         response = client.get(reverse('tour-detail', args=[id_]), follow=True)
 
