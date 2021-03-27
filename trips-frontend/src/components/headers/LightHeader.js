@@ -56,7 +56,7 @@ export const DesktopNavLinks = tw.nav`
   hidden lg:flex flex-1 justify-between items-center
 `;
 
-export default ({
+const LightHeader = ({
   roundedHeaderButton = false,
   logoLink,
   links,
@@ -137,6 +137,8 @@ export default ({
     </Header>
   );
 };
+
+export default LightHeader;
 
 /* The below code is for generating dynamic break points for navbar.
  * Using this you can specify if you want to switch

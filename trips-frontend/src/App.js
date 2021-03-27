@@ -1,14 +1,9 @@
 import React from 'react';
 import 'tailwindcss/dist/base.css';
-import AnimationRevealPage from 'helpers/AnimationRevealPage';
-import Hero from 'components/hero/FullWidthWithImage';
+import LandingPage from 'pages/LandingPage';
 
 function App() {
-  return (
-    // <AnimationRevealPage>
-    <Hero />
-    // </AnimationRevealPage>
-  );
+  return <LandingPage />;
 }
 
 export default App;
