@@ -6,7 +6,6 @@ import TwoTrendingPreviewCardsWithImage from "components/cards/TwoPreviewsWithDe
 import TwoColSingleFeatureWithStats from "components/cards/StatsWithImage";
 import TwoColumnWithImageAndProfilePictureReview from "components/cards/ReviewsWithImage";
 import FaqWithSideImage from "components/cards/FaqWithSideImage";
-import FiveColumnWithInputForm from "components/footers/FiveColumnWithInputForm";
 
 const LandingPage = () => {
   return (
@@ -17,7 +16,6 @@ const LandingPage = () => {
       <TwoColSingleFeatureWithStats />
       <TwoColumnWithImageAndProfilePictureReview textOnLeft={true} />
       <FaqWithSideImage />
-      <FiveColumnWithInputForm />
     </React.Fragment>
   );
 };
