@@ -1,6 +1,5 @@
 import React from "react";
 import tw from "twin.macro"; //eslint-disable-line
-import { css } from "styled-components/macro"; //eslint-disable-line
 
 import Hero from "components/cards/HeroWithImage";
 import ThreeColSlider from "components/cards/ThreeColSlider";
@@ -11,14 +10,14 @@ import FaqWithSideImage from "components/cards/FaqWithSideImage";
 
 const heroHeading = (
   <>
-    Visit amazing places
+    Amazing places
     <wbr />
     <br />
-    <span tw="text-primary-500">Create great memories</span>
+    <span tw="text-primary-500">Long lasting memories</span>
   </>
 );
 const heroDescription =
-  "We have been organizing tours around the world for 5 years. We provide great memories and amazing experiences.";
+  "We have been organizing tours around the world for 5 years. We guarantee unforgettable moments in the most wonderful corners of the globe.";
 const heroPrimaryActionText = "Sign Up";
 const heroSecondaryActionText = "Search Tours";
 
