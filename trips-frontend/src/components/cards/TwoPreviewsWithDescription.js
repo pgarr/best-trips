@@ -1,14 +1,14 @@
-import React from 'react';
-import tw from 'twin.macro';
-import styled from 'styled-components';
-import { css } from 'styled-components/macro'; //eslint-disable-line
-import { SectionHeading } from 'components/misc/Headings.js';
-import { PrimaryLink as PrimaryLinkBase } from 'components/misc/Links.js';
-import { PrimaryButton as PrimaryButtonBase } from 'components/misc/Buttons.js';
-import { ReactComponent as LocationIcon } from 'feather-icons/dist/icons/map-pin.svg';
-import { ReactComponent as TimeIcon } from 'feather-icons/dist/icons/clock.svg';
-import { ReactComponent as TrendingIcon } from 'feather-icons/dist/icons/trending-up.svg';
-import { ReactComponent as ArrowRightIcon } from 'images/arrow-right-icon.svg';
+import React from "react";
+import tw from "twin.macro";
+import styled from "styled-components";
+import { css } from "styled-components/macro"; //eslint-disable-line
+import { SectionHeading } from "components/misc/Headings.js";
+import { PrimaryLink as PrimaryLinkBase } from "components/misc/Links.js";
+import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
+import { ReactComponent as LocationIcon } from "feather-icons/dist/icons/map-pin.svg";
+import { ReactComponent as TimeIcon } from "feather-icons/dist/icons/clock.svg";
+import { ReactComponent as TrendingIcon } from "feather-icons/dist/icons/trending-up.svg";
+import { ReactComponent as ArrowRightIcon } from "images/arrow-right-icon.svg";
 
 const Container = tw.div`relative`;
 const Content = tw.div`max-w-screen-xl mx-auto py-20 lg:py-24`;
@@ -59,23 +59,23 @@ const TwoPreviewsWithDescription = () => {
   const cards = [
     {
       imageSrc:
-        'https://images.unsplash.com/photo-1553194587-b010d08c6c56?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=768&q=80',
-      type: 'Beachfront',
-      pricePerDay: '$99',
-      title: 'A Trip to the Bahamas and the Carribean Ocean',
-      trendingText: 'Trending',
-      durationText: '7 Days Tour',
-      locationText: 'Africa',
+        "https://images.unsplash.com/photo-1553194587-b010d08c6c56?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=768&q=80",
+      type: "Beachfront",
+      pricePerDay: "$99",
+      title: "A Trip to the Bahamas and the Carribean Ocean",
+      trendingText: "Trending",
+      durationText: "7 Days Tour",
+      locationText: "Africa",
     },
     {
       imageSrc:
-        'https://images.unsplash.com/photo-1584200186925-87fa8f93be9b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=768&q=80',
-      type: 'Cruise',
-      pricePerDay: '$169',
-      title: 'Cruise to the Mariana Trench and the Phillipines',
-      trendingText: 'Trending',
-      durationText: '15 Days Tour',
-      locationText: 'Australia',
+        "https://images.unsplash.com/photo-1584200186925-87fa8f93be9b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=768&q=80",
+      type: "Cruise",
+      pricePerDay: "$169",
+      title: "Cruise to the Mariana Trench and the Phillipines",
+      trendingText: "Trending",
+      durationText: "15 Days Tour",
+      locationText: "Australia",
     },
   ];
   return (

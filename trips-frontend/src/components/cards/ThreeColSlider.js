@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import Slider from 'react-slick';
-import tw from 'twin.macro';
-import styled from 'styled-components';
-import { SectionHeading } from 'components/misc/Headings';
-import { PrimaryButton as PrimaryButtonBase } from 'components/misc/Buttons';
-import { ReactComponent as PriceIcon } from 'feather-icons/dist/icons/dollar-sign.svg';
-import { ReactComponent as LocationIcon } from 'feather-icons/dist/icons/map-pin.svg';
-import { ReactComponent as StarIcon } from 'feather-icons/dist/icons/star.svg';
-import { ReactComponent as ChevronLeftIcon } from 'feather-icons/dist/icons/chevron-left.svg';
-import { ReactComponent as ChevronRightIcon } from 'feather-icons/dist/icons/chevron-right.svg';
+import React, { useState } from "react";
+import Slider from "react-slick";
+import tw from "twin.macro";
+import styled from "styled-components";
+import { SectionHeading } from "components/misc/Headings";
+import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons";
+import { ReactComponent as PriceIcon } from "feather-icons/dist/icons/dollar-sign.svg";
+import { ReactComponent as LocationIcon } from "feather-icons/dist/icons/map-pin.svg";
+import { ReactComponent as StarIcon } from "feather-icons/dist/icons/star.svg";
+import { ReactComponent as ChevronLeftIcon } from "feather-icons/dist/icons/chevron-left.svg";
+import { ReactComponent as ChevronRightIcon } from "feather-icons/dist/icons/chevron-right.svg";
 
 const Container = tw.div`relative`;
 const Content = tw.div`max-w-screen-xl mx-auto py-16 lg:py-20`;
@@ -95,42 +95,42 @@ const ThreeColSlider = () => {
   const cards = [
     {
       imageSrc:
-        'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&h=1024&w=768&q=80',
-      title: 'Wyatt Residency',
+        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&h=1024&w=768&q=80",
+      title: "Wyatt Residency",
       description:
-        'Lorem ipsum dolor sit amet, consectur dolori adipiscing elit, sed do eiusmod tempor nova incididunt ut labore et dolore magna aliqua.',
-      locationText: 'Rome, Italy',
-      pricingText: 'USD 39/Day',
-      rating: '4.8',
+        "Lorem ipsum dolor sit amet, consectur dolori adipiscing elit, sed do eiusmod tempor nova incididunt ut labore et dolore magna aliqua.",
+      locationText: "Rome, Italy",
+      pricingText: "USD 39/Day",
+      rating: "4.8",
     },
     {
       imageSrc:
-        'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&h=1024&w=768&q=80',
-      title: 'Soho Paradise',
+        "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&h=1024&w=768&q=80",
+      title: "Soho Paradise",
       description:
-        'Lorem ipsum dolor sit amet, consectur dolori adipiscing elit, sed do eiusmod tempor nova incididunt ut labore et dolore magna aliqua.',
-      locationText: 'Ibiza, Spain',
-      pricingText: 'USD 50/Day',
+        "Lorem ipsum dolor sit amet, consectur dolori adipiscing elit, sed do eiusmod tempor nova incididunt ut labore et dolore magna aliqua.",
+      locationText: "Ibiza, Spain",
+      pricingText: "USD 50/Day",
       rating: 4.9,
     },
     {
       imageSrc:
-        'https://images.unsplash.com/photo-1549294413-26f195200c16?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&h=1024&w=768&q=80',
-      title: 'Hotel Baja',
+        "https://images.unsplash.com/photo-1549294413-26f195200c16?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&h=1024&w=768&q=80",
+      title: "Hotel Baja",
       description:
-        'Lorem ipsum dolor sit amet, consectur dolori adipiscing elit, sed do eiusmod tempor nova incididunt ut labore et dolore magna aliqua.',
-      locationText: 'Palo Alto, CA',
-      pricingText: 'USD 19/Day',
-      rating: '5.0',
+        "Lorem ipsum dolor sit amet, consectur dolori adipiscing elit, sed do eiusmod tempor nova incididunt ut labore et dolore magna aliqua.",
+      locationText: "Palo Alto, CA",
+      pricingText: "USD 19/Day",
+      rating: "5.0",
     },
     {
       imageSrc:
-        'https://images.unsplash.com/photo-1571770095004-6b61b1cf308a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&h=1024&w=768&q=80',
-      title: 'Hudak Homes',
+        "https://images.unsplash.com/photo-1571770095004-6b61b1cf308a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&h=1024&w=768&q=80",
+      title: "Hudak Homes",
       description:
-        'Lorem ipsum dolor sit amet, consectur dolori adipiscing elit, sed do eiusmod tempor nova incididunt ut labore et dolore magna aliqua.',
-      locationText: 'Arizona, RAK',
-      pricingText: 'USD 99/Day',
+        "Lorem ipsum dolor sit amet, consectur dolori adipiscing elit, sed do eiusmod tempor nova incididunt ut labore et dolore magna aliqua.",
+      locationText: "Arizona, RAK",
+      pricingText: "USD 99/Day",
       rating: 4.5,
     },
   ];

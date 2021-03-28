@@ -1,14 +1,14 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import tw from 'twin.macro';
-import styled from 'styled-components';
-import { css } from 'styled-components/macro'; //eslint-disable-line
+import React from "react";
+import { motion } from "framer-motion";
+import tw from "twin.macro";
+import styled from "styled-components";
+import { css } from "styled-components/macro"; //eslint-disable-line
 
-import useAnimatedNavToggler from '../../helpers/useAnimatedNavToggler.js';
+import useAnimatedNavToggler from "../../helpers/useAnimatedNavToggler.js";
 
-import logo from '../../images/logo.svg';
-import { ReactComponent as MenuIcon } from 'feather-icons/dist/icons/menu.svg';
-import { ReactComponent as CloseIcon } from 'feather-icons/dist/icons/x.svg';
+import logo from "../../images/logo.svg";
+import { ReactComponent as MenuIcon } from "feather-icons/dist/icons/menu.svg";
+import { ReactComponent as CloseIcon } from "feather-icons/dist/icons/x.svg";
 
 const Header = tw.header`
   flex justify-between items-center
@@ -61,7 +61,7 @@ const LightHeader = ({
   logoLink,
   links,
   className,
-  collapseBreakpointClass = 'lg',
+  collapseBreakpointClass = "lg",
 }) => {
   /*
    * This header component accepts an optionals "links" prop that specifies the links to render in the navbar.
@@ -78,14 +78,14 @@ const LightHeader = ({
    */
   const defaultLinks = [
     <NavLinks key={1}>
-      <NavLink href='/#'>About</NavLink>
-      <NavLink href='/#'>Blog</NavLink>
-      <NavLink href='/#'>Pricing</NavLink>
-      <NavLink href='/#'>Contact Us</NavLink>
-      <NavLink href='/#' tw='lg:ml-12!'>
+      <NavLink href="/#">About</NavLink>
+      <NavLink href="/#">Blog</NavLink>
+      <NavLink href="/#">Pricing</NavLink>
+      <NavLink href="/#">Contact Us</NavLink>
+      <NavLink href="/#" tw="lg:ml-12!">
         Login
       </NavLink>
-      <PrimaryLink css={roundedHeaderButton && tw`rounded-full`} href='/#'>
+      <PrimaryLink css={roundedHeaderButton && tw`rounded-full`} href="/#">
         Sign Up
       </PrimaryLink>
     </NavLinks>,
@@ -96,8 +96,8 @@ const LightHeader = ({
     collapseBreakPointCssMap[collapseBreakpointClass];
 
   const defaultLogoLink = (
-    <LogoLink href='/'>
-      <img src={logo} alt='logo' />
+    <LogoLink href="/">
+      <img src={logo} alt="logo" />
       Treact
     </LogoLink>
   );
@@ -106,7 +106,7 @@ const LightHeader = ({
   links = links || defaultLinks;
 
   return (
-    <Header className={className || 'header-light'}>
+    <Header className={className || "header-light"}>
       <DesktopNavLinks css={collapseBreakpointCss.desktopNavLinks}>
         {logoLink}
         {links}
@@ -117,7 +117,7 @@ const LightHeader = ({
       >
         {logoLink}
         <MobileNavLinks
-          initial={{ x: '150%', display: 'none' }}
+          initial={{ x: "150%", display: "none" }}
           animate={animation}
           css={collapseBreakpointCss.mobileNavLinks}
         >
@@ -125,12 +125,12 @@ const LightHeader = ({
         </MobileNavLinks>
         <NavToggle
           onClick={toggleNavbar}
-          className={showNavLinks ? 'open' : 'closed'}
+          className={showNavLinks ? "open" : "closed"}
         >
           {showNavLinks ? (
-            <CloseIcon tw='w-6 h-6' />
+            <CloseIcon tw="w-6 h-6" />
           ) : (
-            <MenuIcon tw='w-6 h-6' />
+            <MenuIcon tw="w-6 h-6" />
           )}
         </NavToggle>
       </MobileNavLinksContainer>
