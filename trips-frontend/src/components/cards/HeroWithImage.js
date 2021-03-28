@@ -31,19 +31,12 @@ const Actions = styled.div`
 `;
 
 const Hero = ({
-  heading = (
-    <>
-      Find Perfect Hotels
-      <wbr />
-      <br />
-      <span tw="text-primary-500">anywhere you go.</span>
-    </>
-  ),
-  description = "We've been in the hotels business across the world for 5 years now. We assure you that you will always enjoy your stay with us.",
-  primaryActionUrl = "#",
-  primaryActionText = "Sign Up",
-  secondaryActionUrl = "#",
-  secondaryActionText = "Search Hotels",
+  heading,
+  description,
+  primaryActionUrl,
+  primaryActionText,
+  secondaryActionUrl,
+  secondaryActionText,
 }) => {
   return (
     <Container>
