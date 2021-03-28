@@ -24,7 +24,7 @@ const heroSecondaryActionText = "Search Tours";
 
 const LandingPage = () => {
   return (
-    <React.Fragment>
+    <>
       <Hero
         heading={heroHeading}
         description={heroDescription}
@@ -38,7 +38,7 @@ const LandingPage = () => {
       <TwoColSingleFeatureWithStats />
       <TwoColumnWithImageAndProfilePictureReview textOnLeft={true} />
       <FaqWithSideImage />
-    </React.Fragment>
+    </>
   );
 };
 
