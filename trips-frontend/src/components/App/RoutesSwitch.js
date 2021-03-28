@@ -1,9 +1,9 @@
 import React from "react";
 import { Route, Switch, Redirect } from "react-router-dom";
 
-import LandingPage from "pages/LandingPage";
+import LandingPage from "components/pages/LandingPage";
 
-const RoutesList = () => {
+const RoutesSwitch = () => {
   return (
     <Switch>
       <Route path="/" exact component={LandingPage} />
@@ -12,4 +12,4 @@ const RoutesList = () => {
   );
 };
 
-export default RoutesList;
+export default RoutesSwitch;

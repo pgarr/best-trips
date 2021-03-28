@@ -74,7 +74,7 @@ const TermsOfService = ({ headingText = "Terms And Condition" }) => {
               </li>
               <li>
                 <strong>Company</strong> (referred to as either "the Company",
-                "We", "Us" or "Our" in this Agreement) refers to Treact Inc.,
+                "We", "Us" or "Our" in this Agreement) refers to Bestrips Inc.,
                 Navi Mumbai.
               </li>
               <li>
@@ -95,8 +95,8 @@ const TermsOfService = ({ headingText = "Terms And Condition" }) => {
                 included or made available by the Service.
               </li>
               <li>
-                <strong>Website</strong> refers to Treact, accessible from
-                https://treact.com
+                <strong>Website</strong> refers to Bestrips, accessible from
+                https://localhost
               </li>
               <li>
                 <strong>You</strong> means the individual accessing or using the

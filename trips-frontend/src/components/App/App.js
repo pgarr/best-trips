@@ -3,12 +3,12 @@ import { withRouter } from "react-router-dom";
 import "tailwindcss/dist/base.css";
 import LayoutWrapper from "./LayoutWrapper";
 
-import RoutesList from "./RoutesList";
+import RoutesSwitch from "./RoutesSwitch";
 
 const App = () => {
   return (
     <LayoutWrapper>
-      <RoutesList />
+      <RoutesSwitch />
     </LayoutWrapper>
   );
 };

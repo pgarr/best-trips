@@ -84,7 +84,7 @@ const PrivacyPolicy = ({ headingText = "Privacy Policy" }) => {
               <li>
                 <p>
                   <strong>Company</strong> (referred to as either "the Company",
-                  "We", "Us" or "Our" in this Agreement) refers to Treact.
+                  "We", "Us" or "Our" in this Agreement) refers to Bestrips.
                 </p>
               </li>
               <li>
@@ -99,8 +99,8 @@ const PrivacyPolicy = ({ headingText = "Privacy Policy" }) => {
                 to access our Service or parts of our Service.
               </li>
               <li>
-                <strong>Website</strong> refers to Treact, accessible from
-                https://treact.com
+                <strong>Website</strong> refers to Bestrips, accessible from
+                https://localhost
               </li>{" "}
               <li>
                 <strong>Service</strong> refers to the Website.

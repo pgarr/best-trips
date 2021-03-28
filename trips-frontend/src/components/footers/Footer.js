@@ -141,10 +141,10 @@ const Footer = () => {
         <ThreeColRow>
           <LogoContainer>
             <LogoImg src={LogoImage} />
-            <LogoText>Treact Inc.</LogoText>
+            <LogoText>Bestrips Inc.</LogoText>
           </LogoContainer>
           <CopywrightNotice>
-            &copy; 2018 Treact Inc. All Rights Reserved.
+            &copy; 2021 Bestrips Inc. All Rights Reserved.
           </CopywrightNotice>
           <SocialLinksContainer>
             <SocialLink href="https://facebook.com">
