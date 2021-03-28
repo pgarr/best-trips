@@ -30,7 +30,7 @@ const LandingPage = () => {
         description={heroDescription}
         primaryActionUrl="/register"
         primaryActionText={heroPrimaryActionText}
-        secondaryActionUrl={"/tours"}
+        secondaryActionUrl="/tours"
         secondaryActionText={heroSecondaryActionText}
       />
       <ThreeColSlider />
