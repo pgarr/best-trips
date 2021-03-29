@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import tw, { styled } from "twin.macro";
 import { css } from "styled-components/macro"; //eslint-disable-line
 
-import useAnimatedNavToggler from "../../helpers/useAnimatedNavToggler.js";
+import useAnimatedNavToggler from "../../helpers/customHooks/useAnimatedNavToggler.js";
 
 import logo from "../../images/logo.svg";
 import { ReactComponent as MenuIcon } from "feather-icons/dist/icons/menu.svg";
