@@ -107,6 +107,62 @@ class TestTourInstanceModel:
 
 
 @pytest.mark.django_db
+class TestReservationInstanceRoutes:
+    @pytest.fixture
+    def four_tour_instances(self, two_tours, create_tour_instance):
+        first_june_instance = create_tour_instance(tour=two_tours[0],
+                                                   departure_time=datetime.datetime(2020, 6, 17),
+                                                   return_time=datetime.datetime(2020, 6, 19),
+                                                   price=200)
+
+        second_june_instance = create_tour_instance(tour=two_tours[1],
+                                                    departure_time=datetime.datetime(2020, 6, 27),
+                                                    return_time=datetime.datetime(2020, 6, 29),
+                                                    price=200)
+
+        first_may_instance = create_tour_instance(tour=two_tours[0],
+                                                  departure_time=datetime.datetime(2020, 5, 17),
+                                                  return_time=datetime.datetime(2020, 5, 19),
+                                                  price=200)
+
+        second_may_instance = create_tour_instance(tour=two_tours[1],
+                                                   departure_time=datetime.datetime(2020, 5, 27),
+                                                   return_time=datetime.datetime(2020, 5, 29),
+                                                   price=200)
+
+        return [first_may_instance, second_may_instance, first_june_instance, second_june_instance]
+
+    def test_get_all(self, client, four_tour_instances):
+        response = client.get(reverse('tourinstance-list'))
+        assert len(response.json()) == 4
+
+    def test_get_all_is_sorted_by_departure_time_asc(self, client, four_tour_instances):
+        response = client.get(reverse('tourinstance-list'))
+
+        instances = response.json()
+        assert all(
+            instances[i]['departure_time'] <= instances[i + 1]['departure_time'] for i in range(len(instances) - 1))
+
+    def test_get_all_all_required_data(self, client, four_tour_instances):
+        response = client.get(reverse('tourinstance-list'))
+
+        instances = response.json()
+
+        assert all('departure_time' in instance for instance in instances)
+        assert all('return_time' in instance for instance in instances)
+        assert all('price' in instance for instance in instances)
+        assert all('tour' in instance for instance in instances)
+        assert all('short_description' in instance['tour'] for instance in instances)
+        assert all('main_image' in instance['tour'] for instance in instances)
+        assert all('destination' in instance['tour'] for instance in instances)
+        assert all('country' in instance['tour'] for instance in instances)
+
+    def test_get_all_filter_by_departure_date(self, client, four_tour_instances):
+        response = client.get(reverse('tourinstance-list'), {'departure_time_after': '2020-06-01'})
+        assert len(response.json()) == 2
+
+
+@pytest.mark.django_db
 class TestReservationRoutes:
 
     @pytest.fixture

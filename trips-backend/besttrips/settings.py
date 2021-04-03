@@ -1,7 +1,3 @@
-"""
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/3.1/ref/settings/
-"""
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -18,12 +14,12 @@ CORS_ALLOWED_ORIGINS = [os.environ.get("FRONTEND_HOST")]
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
-
 # Application definition
 INSTALLED_APPS = [
     'auth_api.apps.AuthApiConfig',
     'tours.apps.ToursConfig',
     'corsheaders',
+    'django_filters',
     'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -76,8 +72,6 @@ DATABASES = {
 }
 
 # Password validation
-# https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -107,7 +101,6 @@ USE_L10N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
 STATIC_URL = "/staticfiles/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
@@ -116,12 +109,11 @@ MEDIA_URL = "/mediafiles/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
 
 REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+    ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }

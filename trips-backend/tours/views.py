@@ -1,15 +1,22 @@
 from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
 
-from .models import Tour, Reservation
+from .filters import TourInstanceFilter
+from .models import Tour, Reservation, TourInstance
 from .permissions import IsOwner
 from .serializers import TourSerializer, ReservationBaseSerializer, ReservationCreateSerializer, \
-    ReservationListSerializer, ReservationDetailSerializer
+    ReservationListSerializer, ReservationDetailSerializer, TourInstanceSerializer
 
 
 class TourViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tour.objects.all().order_by('-created')
     serializer_class = TourSerializer
+
+
+class TourInstanceViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = TourInstance.objects.all().order_by('departure_time')
+    serializer_class = TourInstanceSerializer
+    filterset_class = TourInstanceFilter
 
 
 class ReservationViewSet(viewsets.ModelViewSet):
