@@ -1,5 +1,6 @@
 import React from "react";
 import tw from "twin.macro"; //eslint-disable-line
+import dayjs from "dayjs";
 
 import Hero from "components/blocks/HeroWithImage";
 import ThreeColSlider from "components/blocks/ThreeColSlider";
@@ -23,33 +24,30 @@ const heroPrimaryActionText = "Sign Up";
 const heroSecondaryActionText = "Search Tours";
 
 const LandingPage = () => {
-  const [{ data, isLoading }, doFetch] = useFetchApi(
-    { url: "/tours/tours/" },
+  const [bestTours] = useFetchApi({ url: "/tours/tours/" }, []);
+  const [incomingTrips] = useFetchApi(
+    {
+      url: "/tours/instances/",
+      params: { departure_time_after: dayjs().format("YYYY-MM-DD") },
+    },
     []
   );
 
-  const cards = [
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1553194587-b010d08c6c56?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=768&q=80",
-      headerText: "Poznań",
-      price: "$99",
-      title: "A Trip to the Bahamas and the Carribean Ocean",
-      fromDate: "10 May",
-      toDate: "24 May",
-      locationText: "Poland",
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1584200186925-87fa8f93be9b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=768&q=80",
-      headerText: "Sydney",
-      price: "$1690",
-      title: "Cruise to the Mariana Trench and the Phillipines",
-      fromDate: "10 May",
-      toDate: "24 May",
-      locationText: "Australia",
-    },
-  ];
+  const adaptTrips = (trips) => {
+    const cards = [];
+    trips.forEach((trip) => {
+      cards.push({
+        imageSrc: trip.tour.main_image,
+        headerText: trip.tour.destination,
+        price: trip.price,
+        title: trip.tour.short_description,
+        fromDate: dayjs(trip.departure_time).format("DD MMM YY"),
+        toDate: dayjs(trip.return_time).format("DD MMM YY"),
+        locationText: trip.tour.country,
+      });
+    });
+    return cards;
+  };
 
   return (
     <>
@@ -68,7 +66,7 @@ const LandingPage = () => {
                 eiusmod tempor incididunt ut labore et dolore magna aliqua enim
                 ad minim veniam."
         primaryLinkDesc="View all tours"
-        cards={cards}
+        cards={adaptTrips(incomingTrips.data)}
       />
       <TwoColSingleFeatureWithStats />
       <TwoColumnWithImageAndProfilePictureReview textOnLeft={true} />

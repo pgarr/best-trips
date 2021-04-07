@@ -4,7 +4,6 @@ import { css } from "styled-components/macro"; //eslint-disable-line
 import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
 import { ReactComponent as LocationIcon } from "feather-icons/dist/icons/map-pin.svg";
 import { ReactComponent as TimeIcon } from "feather-icons/dist/icons/clock.svg";
-import { ReactComponent as TrendingIcon } from "feather-icons/dist/icons/trending-up.svg";
 
 const Card = tw.div`mx-auto xl:mx-0 xl:ml-auto max-w-sm md:max-w-xs lg:max-w-sm xl:max-w-xs`;
 const CardImage = styled.div((props) => [
@@ -37,7 +36,7 @@ const TourInstanceCard = ({ card }) => {
         <CardHeader>
           <CardHeaderText>{card.headerText}</CardHeaderText>
           <CardPrice>
-            <CardPriceAmount>{card.price}</CardPriceAmount>
+            <CardPriceAmount>${card.price}</CardPriceAmount>
           </CardPrice>
         </CardHeader>
         <CardTitle>{card.title}</CardTitle>
