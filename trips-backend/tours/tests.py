@@ -107,7 +107,7 @@ class TestTourInstanceModel:
 
 
 @pytest.mark.django_db
-class TestReservationInstanceRoutes:
+class TestTourInstanceRoutes:
     @pytest.fixture
     def four_tour_instances(self, two_tours, create_tour_instance):
         first_june_instance = create_tour_instance(tour=two_tours[0],
@@ -225,7 +225,7 @@ class TestReservationRoutes:
         user1, user2 = two_users
         access = create_token(user2)['access']
 
-        response = client.post(reverse('reservation-list'), {}, HTTP_AUTHORIZATION='Bearer %s' % access)
+        response = client.post(reverse('reservation-list'), HTTP_AUTHORIZATION='Bearer %s' % access)
 
         assert response.status_code == 400
         assert 'num_people' in response.json()
