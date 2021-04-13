@@ -33,6 +33,22 @@ const LandingPage = () => {
     []
   );
 
+  const adaptTours = (tours) => {
+    const cards = [];
+    // TODO: use rating from backend when implemented
+    tours.forEach((tour) => {
+      cards.push({
+        imageSrc: tour.main_image,
+        destination: tour.destination,
+        description: tour.short_description,
+        locationText: tour.country,
+        duration: tour.duration_days + " days",
+        rating: "XXX",
+      });
+    });
+    return cards;
+  };
+
   const adaptTrips = (trips) => {
     const cards = [];
     trips.forEach((trip) => {
@@ -59,7 +75,11 @@ const LandingPage = () => {
         secondaryActionUrl="/tours"
         secondaryActionText={heroSecondaryActionText}
       />
-      <ThreeColSlider />
+      <ThreeColSlider
+        title="Popular Tours"
+        cardButtonDescription="Check details"
+        cards={adaptTours(bestTours.data)}
+      />
       <TwoPreviewsWithDescription
         title="Incoming tours"
         description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
